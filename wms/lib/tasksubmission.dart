@@ -115,7 +115,7 @@ Future<void> _showTrueDialog() async {
           title: Text('Alert'),
           content: SingleChildScrollView(
             child: ListBody(
-              children: <Widget>[
+              children: const <Widget>[
                 Text('Submitted Successfully'),
               ],
             ),
@@ -174,9 +174,9 @@ void submit() async{
       return Dialog(
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          children: [
+          children: const [
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(8.0),
               child: CircularProgressIndicator(),
             ),
             Text("Submitting"),
@@ -286,7 +286,7 @@ void submit() async{
             ),
             SizedBox(height: 20),
 
-            Container(
+            SizedBox(
               height: 250,
               child: ListView.builder(
                 scrollDirection: Axis.vertical,

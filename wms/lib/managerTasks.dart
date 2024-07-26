@@ -68,11 +68,11 @@ class _ManagerTasksState extends State<ManagerTasks> {
         future: taskDash(), // function where you call your api
         builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {  // AsyncSnapshot<Your object type>
           if( snapshot.connectionState == ConnectionState.waiting){
-            return  Center(child: CircularProgressIndicator());
+            return  const Center(child: CircularProgressIndicator());
           }else{
-            if (snapshot.hasError)
+            if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
-            else{
+            } else{
               return ListView.builder(
       itemCount: jsonRes.length,
       itemBuilder: (context, index) {
@@ -86,39 +86,39 @@ class _ManagerTasksState extends State<ManagerTasks> {
       children: <Widget>[
   
   Text('Task Name: ${jsonRes[index]["task_name"]}'),
-  SizedBox(height: 10.0),
+  const SizedBox(height: 10.0),
   Text('Sub - Event: ${jsonRes[index]["name"]}'),
-  SizedBox(height: 8.0),
+  const SizedBox(height: 8.0),
   Text('Description: ${jsonRes[index]["description_"] ?? "N/A"}'),
-  SizedBox(height: 8.0),
+  const SizedBox(height: 8.0),
   Text('Deadline: ${jsonRes[index]["deadline"]}'),
-  SizedBox(height: 8.0),
+  const SizedBox(height: 8.0),
   Text('Type: ${jsonRes[index]["type"]  ?? "N/A"}'),
-  SizedBox(height: 8.0),
+  const SizedBox(height: 8.0),
   Text('Vendor: ${jsonRes[index]["vendor"]}'),
-  SizedBox(height: 8.0),
+  const SizedBox(height: 8.0),
   Text('Name: ${jsonRes[index]["name"]}'),
-  SizedBox(height: 8.0),
+  const SizedBox(height: 8.0),
   Text('Start Time: ${jsonRes[index]["start_time"]}'),
-  SizedBox(height: 8.0),
+  const SizedBox(height: 8.0),
   Text('End Time: ${jsonRes[index]["end_time"]}'),
-  SizedBox(height: 8.0),
+  const SizedBox(height: 8.0),
   Text('Event Date: ${jsonRes[index]["event_date"].toString().substring(0,10)}'),
-  SizedBox(height: 8.0),
+  const SizedBox(height: 8.0),
   Row(
     children: [
-      Text('Status:'),
+      const Text('Status:'),
       Visibility(
         visible: jsonRes[index]["status"] == 'Completed' ,
-        child: Text('Completed', style: TextStyle(color: Colors.green),)),
+        child: const Text('Completed', style: TextStyle(color: Colors.green),)),
         Visibility(
         visible: jsonRes[index]["status"] == 'Incomplete' ,
-        child: Text('Incomplete', style: TextStyle(color: Colors.red),)),
+        child: const Text('Incomplete', style: TextStyle(color: Colors.red),)),
         
       
     ],
   ),
-  SizedBox(height: 8.0),
+  const SizedBox(height: 8.0),
   TextButton(onPressed: ()=>{Navigator.push(context, MaterialPageRoute(builder: (context)=>  ManagerSubView(task_id: jsonRes[index]["task_id"])))}, child: const Text("Check Submissions"))
 
 ],

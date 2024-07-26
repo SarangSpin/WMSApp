@@ -94,7 +94,7 @@ List<dynamic> jsonRes = [];
   // ImagesSubView(jsonRes[i]["task_submission_id"]);
   String imgUrl = 'http://153.92.5.199:5000/imagesubview?task_submission_id=${jsonRes[i]["task_submission_id"]}';
 
-    var imgResponse;
+    http.Response imgResponse;
       imgResponse = await http.get(Uri.parse(imgUrl),
           headers: {"Content-Type":"application/json"},
       );
@@ -141,7 +141,7 @@ List<dynamic> jsonRes = [];
         future: taskSubViewDash(), // function where you call your api
         builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {  // AsyncSnapshot<Your object type>
           if( snapshot.connectionState == ConnectionState.waiting){
-            return  Center(child: CircularProgressIndicator());
+            return  const Center(child: CircularProgressIndicator());
           }else{
             if (snapshot.hasError)
               return Center(child: Text('Error: ${snapshot.error}'));
@@ -159,21 +159,21 @@ List<dynamic> jsonRes = [];
       children: <Widget>[
   
   Text('Review: ${jsonRes[index]["review"]}'),
-  SizedBox(height: 10.0),
+  const SizedBox(height: 10.0),
   Text('Time: ${jsonRes[index]["time"].toString().substring(0,10)}'),
-  SizedBox(height: 8.0),
+  const SizedBox(height: 8.0),
   Row(
     children: [
-      Text('Status: '),
+      const Text('Status: '),
       Text('${jsonRes[index]["status"] ?? "N/A"}', style: TextStyle(color: color[index]),),
     ],
   ),
-  SizedBox(height: 8.0),
+  const SizedBox(height: 8.0),
   Visibility(
     visible: jsonRes[index]["osm_changes"] != null,
-    child: Text('Manager Suggested Changes: ${jsonRes[index]["osm_changes"]}', style: TextStyle(color: Colors.orangeAccent)))
+    child: Text('Manager Suggested Changes: ${jsonRes[index]["osm_changes"]}', style: const TextStyle(color: Colors.orangeAccent)))
   ,
-  SizedBox(height: 8.0),
+  const SizedBox(height: 8.0),
   
 //   CarouselSlider(
 //   options: CarouselOptions(height: 400.0),
@@ -194,7 +194,7 @@ CarouselSlider.builder(
   InstaImageViewer(child: 
   Image.network('http://153.92.5.199:5000/images/appln/${jsonRes[index]["task_submission_id"]}/${jsonRes[index]["task_submission_id"]}_${i+1}.png', width: MediaQuery.of(context).size.width, height: 200,
     errorBuilder: (context, error, stackTrace) {
-    return Text('Error Loading');
+    return const Text('Error Loading');
   },
   frameBuilder: (BuildContext context, Widget child, int? frame, bool? wasSynchronouslyLoaded) {
     return Padding(
@@ -207,7 +207,7 @@ CarouselSlider.builder(
         if (loadingProgress == null) {
           return child;
         }else {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
             ),

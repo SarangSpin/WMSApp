@@ -124,18 +124,19 @@ class _LoginPageState extends State<LoginPage> {
   void loginUser() async{
     if(usernameController.text.isNotEmpty && passwordController.text.isNotEmpty){
 
-      _showTrueDialog();
+      //_showTrueDialog();
 
       var reqBody = {
         "username":usernameController.text,
         "password":passwordController.text
       };
-
+      
+      print(reqBody);
       var response = await http.post(Uri.parse(login),
           headers: {"Content-Type":"application/json"},
           body: jsonEncode(reqBody)
       );
-
+      //print(response);
       var jsonResponse = jsonDecode(response.body);
       if(jsonResponse['status'] && jsonResponse['designation'] == "osm"){
 

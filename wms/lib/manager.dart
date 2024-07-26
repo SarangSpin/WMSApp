@@ -110,11 +110,11 @@ class _ManagerState extends State<Manager> with TickerProviderStateMixin{
         future: managerDash(), // function where you call your api
         builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {  // AsyncSnapshot<Your object type>
           if( snapshot.connectionState == ConnectionState.waiting){
-            return  Center(child: CircularProgressIndicator());
+            return  const Center(child: CircularProgressIndicator());
           }else{
-            if (snapshot.hasError)
+            if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
-            else{
+            } else{
               return  TabBarView(
         controller: _controller,
         children:  [
@@ -125,7 +125,7 @@ class _ManagerState extends State<Manager> with TickerProviderStateMixin{
         Card(
           child: Visibility(
             visible: jsonResponse[index]['status'] == 'assigned',
-          replacement: SizedBox(child: Center(child: Text('No Pending Assignments', style: TextStyle(fontSize: 30),)), height: MediaQuery.sizeOf(context).height, width: MediaQuery.sizeOf(context).width),
+          replacement: SizedBox(height: MediaQuery.sizeOf(context).height, width: MediaQuery.sizeOf(context).width, child: const Center(child: Text('No Pending Assignments', style: TextStyle(fontSize: 30),))),
             child: 
           ListTile(
             title: Text('Event: ${jsonResponse[index]['event_']}'),
@@ -147,7 +147,7 @@ class _ManagerState extends State<Manager> with TickerProviderStateMixin{
         Card(
           child: Visibility(
             visible: jsonResponse[index]['status'] == 'completed',
-          replacement:  SizedBox(child: Center(child: Text('No Completed Assignments', style: TextStyle(fontSize: 30),)), height: MediaQuery.sizeOf(context).height, width: MediaQuery.sizeOf(context).width),
+          replacement:  SizedBox(height: MediaQuery.sizeOf(context).height, width: MediaQuery.sizeOf(context).width, child: const Center(child: Text('No Completed Assignments', style: TextStyle(fontSize: 30),))),
             child: 
 
           ListTile(

@@ -86,48 +86,48 @@ class _ManagerEventState extends State<ManagerEvent> {
         future: venue(), // function where you call your api
         builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {  // AsyncSnapshot<Your object type>
           if( snapshot.connectionState == ConnectionState.waiting){
-            return  Center(child: CircularProgressIndicator());
+            return  const Center(child: CircularProgressIndicator());
           }else{
-            if (snapshot.hasError)
+            if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
-            else{
+            } else{
               return ListView.builder(
       itemCount: jsonRes.length,
       itemBuilder: (context, index) {
         return 
         Card(
   child: Container(
-    padding: EdgeInsets.all(16.0),
+    padding: const EdgeInsets.all(16.0),
     child: Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
           'Application Date: ${widget.event["appln_date"].toString().substring(0,10)}',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         
         Visibility(
           visible: widget.event["description_"].toString() != 'null',
           child: Column(
             children: [
-              SizedBox(height: 15.0),
+              const SizedBox(height: 15.0),
               Text('Description: ${widget.event["description_"] ?? "N/A"}'),
             ],
           )),
-        SizedBox(height: 10.0),
+        const SizedBox(height: 10.0),
         Text('Start Date: ${widget.event["start_date"].toString().substring(0,10)}'),
-        SizedBox(height: 10.0),
+        const SizedBox(height: 10.0),
         Text('End Date: ${widget.event["end_date"].toString().substring(0,10)}'),
-        SizedBox(height: 10.0),
+        const SizedBox(height: 10.0),
         Text('Population: ${widget.event["population"]}'),
-        SizedBox(height: 10.0),
+        const SizedBox(height: 10.0),
         Visibility(
           visible: widget.event["budget"] == 'custom' ,
           child: Column(
             children: [
               Text('Custom Low Budget: ${widget.event["cus_low_budget"]}'),
-              SizedBox(height: 10.0),
+              const SizedBox(height: 10.0),
             ],
           )),
         
@@ -137,13 +137,13 @@ class _ManagerEventState extends State<ManagerEvent> {
           child: Column(
             children: [
               Text('Custom Event: ${widget.event["cus_event"] ?? "N/A"}'),
-              SizedBox(height: 10.0),
+              const SizedBox(height: 10.0),
             ],
           )),
         
         
         Text('Venue: ${jsonRes[index]['venues_name']}, ${jsonRes[index]['location']}'),
-        SizedBox(height: 10.0),
+        const SizedBox(height: 10.0),
         TextButton(onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>  ManagerTasks(id: widget.event["appl_id"], event: widget.event['event_']))), child: const Text("Check Tasks")),
 
         CarouselSlider.builder(
@@ -153,7 +153,7 @@ class _ManagerEventState extends State<ManagerEvent> {
   InstaImageViewer(child: 
   Image.network('http://153.92.5.199:5000/images/appln/${widget.event['appl_id']}/${widget.event['appl_id']}_${i+1}.png', width: MediaQuery.of(context).size.width, height: 200,
     errorBuilder: (context, error, stackTrace) {
-    return Text('Error Loading');
+    return const Text('Error Loading');
   },
   frameBuilder: (BuildContext context, Widget child, int? frame, bool? wasSynchronouslyLoaded) {
     return Padding(
@@ -166,7 +166,7 @@ class _ManagerEventState extends State<ManagerEvent> {
         if (loadingProgress == null) {
           return child;
         }else {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
             ),

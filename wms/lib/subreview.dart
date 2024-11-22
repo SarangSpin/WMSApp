@@ -122,7 +122,7 @@ Future<void> _showTrueDialog() async {
           TextButton(
             child: const Text('Ok'),
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(context)..pop()..pop()..pop();
               
             },
           ),
@@ -263,7 +263,7 @@ void submit() async{
             ElevatedButton(onPressed: () {
               submit();
               if(successfulsubmit){
-                Navigator.of(context).pop();
+                Navigator.of(context)..pop()..pop()..pop();
               }
             }, child: const Text('Submit'))
 

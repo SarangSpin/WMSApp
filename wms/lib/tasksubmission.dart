@@ -1,121 +1,61 @@
-
-
-
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
-
 import 'package:image_picker/image_picker.dart';
-// import 'dart:convert';
-import 'dart:io';
-
+import 'dart:typed_data';
 import 'package:uuid/uuid.dart';
-// import 'package:cloudinary_flutter/cloudinary_context.dart';
-// import 'package:cloudinary_flutter/image/cld_image.dart';
-// import 'package:cloudinary_url_gen/cloudinary.dart';
 
 var uuid = const Uuid();
 
-// ignore: must_be_immutable
 class TaskSub extends StatefulWidget {
-  var task_id;
-  
-  var vendor_id;
+  final String taskId;
+  final String vendorId;
 
-
-   TaskSub({super.key, @required this.task_id, @required this.vendor_id});
-
-  
+  const TaskSub({
+    Key? key, 
+    required this.taskId, 
+    required this.vendorId
+  }) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   State<TaskSub> createState() => _TaskSubState();
 }
 
 class _TaskSubState extends State<TaskSub> {
-
-
-   List<XFile> _image = [];
-  
-    
+  List<XFile> _image = [];
   final imagePicker = ImagePicker();
-  TextEditingController reviewController = TextEditingController();
-  
+  final reviewController = TextEditingController();
+  var successfulsubmit = false;
+  bool isLoading = false;
 
-
-  void pickImages() async{
-    try{
-   _image = await imagePicker.pickMultiImage(imageQuality: 40, requestFullMetadata: false);
-   
-   setState(() {
-     
-   });
-   // ignore: unnecessary_null_comparison
-   if (_image == null) return;
-
- 
+  void pickImages() async {
+    try {
+      final List<XFile> selectedImages = await imagePicker.pickMultiImage(
+        imageQuality: 40, 
+        requestFullMetadata: false
+      );
+      
+      if (selectedImages.isNotEmpty) {
+        setState(() {
+          _image = selectedImages;
+        });
+      }
+    } catch (e) {
+      print('Error picking images: $e');
+      _showMyDialog(message: 'Failed to pick images');
     }
-    catch(e){
-      _showMyDialog();
-    }
-   
   }
 
-  @override
-  void initState() {
-    
-    super.initState();
-   
-  }
-
-  // Future<void> _uploadImage(i) async{
-
-  //   // final url = Uri.parse('https://api.cloudinary.com/v1_1/djclfq6ns/upload');
-  //   // final request = http.MultipartRequest('POST', url)
-  //   //                   ..fields['upload_preset'] = 'xmppnlzd'
-  //   //                   ..files.add(await http.MultipartFile.fromPath('file', _image[i].path));
-  //   //                   final response = await request.send();
-  //   //                   log(response.statusCode);
-
-
-
-  // }
-
-
-//  Future<void> _showTrueDialog({String type = 'Alert', String message = 'Success'}) async {
-//   return showDialog<void>(
-//     context: context,
-//     barrierDismissible: false, // user must tap button!
-//     builder: (BuildContext context) {
-//       return AlertDialog(
-//         title:  Text(type),
-//         content:  SingleChildScrollView(
-//           child: Text(message)
-//         ),
-//         actions: <Widget>[
-//           TextButton(
-//             child: const Text('Ok'),
-//             onPressed: () {
-//               Navigator.of(context).pop();
-//             },
-//           ),
-//         ],
-//       );
-//     },
-//   );
-// }
-
-Future<void> _showTrueDialog() async {
+  Future<void> _showTrueDialog() async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // user must tap button!
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Alert'),
           content: SingleChildScrollView(
             child: ListBody(
-              children: <Widget>[
+              children: const <Widget>[
                 Text('Submitted Successfully'),
               ],
             ),
@@ -135,185 +75,258 @@ Future<void> _showTrueDialog() async {
   }
 
   Future<void> _showMyDialog({String type = 'Alert', String message = 'Error occurred'}) async {
-  return showDialog<void>(
-    context: context,
-    barrierDismissible: false, // user must tap button!
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title:  Text(type),
-        content:  SingleChildScrollView(
-          child: Text(message)
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Ok'),
-            onPressed: () {
-              Navigator.of(context).pop();
-              
-            },
+    if (!mounted) return;
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(type),
+          content: SingleChildScrollView(
+            child: Text(message)
           ),
-        ],
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Ok'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<Widget> _buildImageWidget(XFile image) async {
+    try {
+      final Uint8List bytes = await image.readAsBytes();
+      return Image.memory(
+        bytes,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          print('Error loading image: $error');
+          return Container(
+            height: 100,
+            color: Colors.grey[200],
+            child: Center(
+              child: Text('Error Loading Image'),
+            ),
+          );
+        },
       );
-    },
-  );
-}
+    } catch (e) {
+      print('Error reading image: $e');
+      return Container(
+        height: 100,
+        color: Colors.grey[200],
+        child: Center(
+          child: Text('Error Loading Image'),
+        ),
+      );
+    }
+  }
 
-
-
-
-
-String submiturl = 'http://153.92.5.199:5000/tasksubmission';
-var successfulsubmit = false;
-
-void submit() async{
-
-  showDialog(
-    context: context,
-    barrierDismissible: false,  // set to false if you want to force a rating
-    builder: (BuildContext context) {
-      return Dialog(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+  Widget _buildImagePreview(XFile image, int index) {
+    return FutureBuilder<Widget>(
+      future: _buildImageWidget(image),
+      builder: (context, snapshot) {
+        return Stack(
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(),
+              child: snapshot.hasData
+                  ? snapshot.data!
+                  : Center(child: CircularProgressIndicator()),
             ),
-            Text("Submitting"),
+            Positioned(
+              top: 0,
+              right: 0,
+              child: IconButton(
+                icon: Icon(Icons.close, color: Colors.red),
+                onPressed: () {
+                  setState(() {
+                    _image.removeAt(index);
+                  });
+                },
+              ),
+            ),
           ],
-        ),
-      );
-    },
-  );
-  
+        );
+      },
+    );
+  }
 
-   var requestID = http.MultipartRequest('GET', Uri.parse('http://153.92.5.199:5000/images_id?id=${uuid.v4()}'));
-      var responseID = await requestID.send();
+  void submit() async {
+    if (reviewController.text.isEmpty || _image.isEmpty) {
+      _showMyDialog(message: 'Please fill review and select images');
+      return;
+    }
 
+    setState(() {
+      isLoading = true;
+    });
 
-    if(reviewController.text.isNotEmpty && _image.isNotEmpty && responseID.statusCode == 200){
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                CircularProgressIndicator(),
+                SizedBox(width: 16),
+                Text("Submitting"),
+              ],
+            ),
+          ),
+        );
+      },
+    );
 
-     
-      
-      var request = http.MultipartRequest('POST', Uri.parse(submiturl));
+    try {
+      // Get images ID first
+      String imagesId = uuid.v4();
+      var requestID = await http.MultipartRequest(
+        'GET', 
+        Uri.parse('http://153.92.5.199:5000/images_id?id=$imagesId')
+      ).send();
 
-         for(int i=0; i< _image.length; i++ ){
+      if (requestID.statusCode == 200) {
+        // Create submission request
+        var request = http.MultipartRequest(
+          'POST',
+          Uri.parse('http://153.92.5.199:5000/tasksubmission'),
+        );
 
-          request.files.add(http.MultipartFile('file',
-          File(_image[i].path).readAsBytes().asStream(), File(_image[i].path).lengthSync(),
-          filename: _image[i].path.split("/").last));
-                    
-                    }
+        // Add all images to request
+        for (var image in _image) {
+          final bytes = await image.readAsBytes();
+          request.files.add(
+            http.MultipartFile.fromBytes(
+              'file',
+              bytes,
+              filename: image.name,
+            ),
+          );
+        }
 
-        
-
-      var reqBody = {
-        "review":reviewController.text,
-        "time": DateTime.now().toString(),
-        "task_id": widget.task_id,
-        "vendor_id": widget.vendor_id,
-        
-      };
-
-      reqBody.forEach((key, value) {
-          request.fields[key] = value.toString();
+        // Add request body
+        request.fields.addAll({
+          "review": reviewController.text,
+          "time": DateTime.now().toString(),
+          "task_id": widget.taskId,
+          "vendor_id": widget.vendorId,
+          "images_id": imagesId,
         });
 
-      var response = await request.send();
+        // Send request
+        var response = await request.send();
+        var responseStr = await response.stream.bytesToString();
+        print('Response: $responseStr');
 
+        if (!mounted) return;
+        Navigator.pop(context); // Close loading dialog
 
-      if (response.statusCode == 200) {
-        Navigator.pop(context);
-        _showTrueDialog();
-        successfulsubmit = true;
-        
-        
+        if (response.statusCode == 200) {
+          successfulsubmit = true;
+          _showTrueDialog();
+        } else {
+          _showMyDialog(message: 'Submission failed');
+        }
       } else {
+        if (!mounted) return;
         Navigator.pop(context);
-        _showMyDialog();
+        _showMyDialog(message: 'Failed to get images ID');
       }
-
-      // var response = await http.post(Uri.parse(submiturl),
-      //     headers: {"Content-Type":"application/json"},
-      //     body: jsonEncode(reqBody)
-      // );
-
-      // var jsonResponse = jsonDecode(response.body);
-      // if(jsonResponse['status']){
-      //   // ignore: use_build_context_synchronously
-      //   Navigator.of(context).pop();
-      // }
-      
-      
-      
-      // else{
-      //   _showMyDialog();
-      // }
-    }else{
-      _showMyDialog();
+    } catch (e) {
+      print('Error in submission: $e');
+      if (!mounted) return;
+      Navigator.pop(context);
+      _showMyDialog(message: 'Error occurred during submission');
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
       }
+    }
   }
-  
 
-
-
-
-    @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: const Text('Task Submission'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextFormField(
-              controller: reviewController,
-              decoration: const InputDecoration(labelText: 'Review'), 
-              validator: (value) {
-              if (value == null || value.isEmpty) return 'Field is required.';
-              return null;
-            },
-            ),
-            SizedBox(height: 20),
-            
-            ElevatedButton(
-              onPressed: (){pickImages();},
-              child: const Text('Select Images'),
-            ),
-            SizedBox(height: 20),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              TextFormField(
+                controller: reviewController,
+                decoration: const InputDecoration(
+                  labelText: 'Review',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Field is required.';
+                  return null;
+                },
+              ),
+              SizedBox(height: 20),
+              
+              ElevatedButton.icon(
+                onPressed: isLoading ? null : pickImages,
+                icon: Icon(Icons.add_photo_alternate),
+                label: Text('Select Images'),
+              ),
+              SizedBox(height: 20),
 
-            Container(
-              height: 250,
-              child: ListView.builder(
-                scrollDirection: Axis.vertical,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Column(
-                        children: [
-                          Image(image: FileImage(File(_image[index].path)),),
-                        ],
-                      );
-                    },
-                    itemCount: _image.length,
+              if (_image.isNotEmpty) ...[
+                Text(
+                  'Selected Images (${_image.length})',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                Container(
+                  height: 250,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(onPressed: () {
-              submit();
-              if(successfulsubmit){
-                Navigator.of(context).pop();
-              }
-            }, child: const Text('Submit'))
-
-          ],
+                  child: ListView.builder(
+                    itemCount: _image.length,
+                    itemBuilder: (context, index) {
+                      return _buildImagePreview(_image[index], index);
+                    },
+                  ),
+                ),
+              ],
+              
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: isLoading ? null : submit,
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: Text(isLoading ? 'Submitting...' : 'Submit'),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-
-
+  @override
+  void dispose() {
+    reviewController.dispose();
+    super.dispose();
+  }
 }

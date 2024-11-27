@@ -89,7 +89,7 @@ Future<void> _showTrueDialog() async {
           title: Text('Alert'),
           content: SingleChildScrollView(
             child: ListBody(
-              children: <Widget>[
+              children: const <Widget>[
                 Text('Submitted Successfully'),
               ],
             ),
@@ -122,7 +122,7 @@ Future<void> _showTrueDialog() async {
           TextButton(
             child: const Text('Ok'),
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(context)..pop()..pop()..pop();
               
             },
           ),
@@ -148,9 +148,9 @@ void submit() async{
       return Dialog(
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          children: [
+          children: const [
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(8.0),
               child: CircularProgressIndicator(),
             ),
             Text("Submitting"),
@@ -263,7 +263,7 @@ void submit() async{
             ElevatedButton(onPressed: () {
               submit();
               if(successfulsubmit){
-                Navigator.of(context).pop();
+                Navigator.of(context)..pop()..pop()..pop();
               }
             }, child: const Text('Submit'))
 

@@ -1,203 +1,356 @@
-// ignore_for_file: use_build_context_synchronously, prefer_typing_uninitialized_variables, must_be_immutable, empty_constructor_bodies, prefer_const_constructors
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:wms/appUI.dart';
 import 'package:wms/manager.dart';
 import 'package:wms/vendor.dart';
 
-
-
 class LoginPage extends StatefulWidget {
-
   const LoginPage({super.key});
 
-  
-
   @override
-  // ignore: library_private_types_in_public_api
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // final TextEditingController usernameController = TextEditingController();
-  // final TextEditingController passwordController = TextEditingController();
-
-  // void _login() async {
-  //   final String username = usernameController.text;
-  //   final String password = passwordController.text;
-
-  //   // Define your server URL for the POST request
-  //   const String apiUrl = 'http://153.92.5.199:5000/applogin';
-
-  //   final response = await http.post(
-  //     Uri.parse(apiUrl),
-  //     body: jsonEncode({'username': username, 'password': password}),
-  //     headers: {'Content-Type': 'application/json'},
-  //   );
-
-  //   if (response.statusCode == 200) {
-  //     // Login successful, navigate to home page
-  //     Navigator.of(context).pushReplacement(MaterialPageRoute(
-  //       builder: (context) => HomePage(),
-  //     ));
-  //   } else {
-  //     // Handle login error (e.g., show an error message)
-  //     // ignore: use_build_context_synchronously
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(
-  //         content: Text('Login failed. Please try again.'),
-  //       ),
-  //     );
-  //   }
-  // }
-
-  Future<void> _showMyDialog({String type = 'Alert', String message = 'Error occurred'}) async {
-  return showDialog<void>(
-    context: context,
-    barrierDismissible: false, // user must tap button!
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title:  Text(type),
-        content:  SingleChildScrollView(
-          child: Text(message)
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Ok'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
-
- Future<void> _showTrueDialog({String type = 'Alert', String message = 'Success'}) async {
-  return showDialog<void>(
-    context: context,
-    barrierDismissible: false, // user must tap button!
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title:  Text(type),
-        content:  SingleChildScrollView(
-          child: Text(message)
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Ok'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
-
- TextEditingController usernameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   bool _isNotValidate = false;
+  bool _isLoading = false;
+  bool _obscurePassword = true;
   late SharedPreferences prefs;
-
 
   @override
   void initState() {
-    
     super.initState();
     initSharedPref();
   }
 
-  void initSharedPref() async{
-    
+  @override
+  void dispose() {
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  void initSharedPref() async {
     prefs = await SharedPreferences.getInstance();
   }
 
-   String login = 'http://153.92.5.199:5000/applogin';
+  Future<void> _showDialog({
+    String title = 'Alert',
+    String message = 'Error occurred',
+    bool isError = true,
+  }) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Text(
+            title,
+            style: AppTheme.headingStyle.copyWith(
+              color: isError ? Colors.red : AppTheme.mainOrange,
+            ),
+          ),
+          content: Text(
+            message,
+            style: AppTheme.bodyStyle,
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                'OK',
+                style: TextStyle(
+                  color: isError ? Colors.red : AppTheme.mainOrange,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-  void loginUser() async{
-    if(usernameController.text.isNotEmpty && passwordController.text.isNotEmpty){
-
-      //_showTrueDialog();
-
-      var reqBody = {
-        "username":usernameController.text,
-        "password":passwordController.text
-      };
-      
-      print(reqBody);
-      var response = await http.post(Uri.parse(login),
-          headers: {"Content-Type":"application/json"},
-          body: jsonEncode(reqBody)
-      );
-      //print(response);
-      var jsonResponse = jsonDecode(response.body);
-      if(jsonResponse['status'] && jsonResponse['designation'] == "osm"){
-
-          var myToken = jsonResponse['token'];
-          prefs.setString('token', myToken);
-          prefs.setString('designation', jsonResponse['designation']);
-          prefs.setString('user', jsonResponse['user']);
-          
-
-          
-          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> Manager(token: myToken, manager: jsonResponse['user'],)), (Route<dynamic> route) => false,);
-      }else if(jsonResponse['status'] && jsonResponse['designation'] == "vendor"){
-          var myToken = jsonResponse['token'];
-          prefs.setString('token', myToken);
-          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> Vendor(token: myToken, vendor: jsonResponse['user'])), (Route<dynamic> route) => false,);
-      }
-      
-      
-      
-      else{
-        _showMyDialog();
-      }
-    }else{
+  Future<void> loginUser() async {
+    if (usernameController.text.isEmpty || passwordController.text.isEmpty) {
       setState(() {
         _isNotValidate = true;
       });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _isNotValidate = false;
+    });
+
+    try {
+      var reqBody = {
+        "username": usernameController.text,
+        "password": passwordController.text
+      };
+
+      var response = await http.post(
+        Uri.parse('http://153.92.5.199:5000/applogin'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(reqBody),
+      );
+
+      var jsonResponse = jsonDecode(response.body);
+
+      if (jsonResponse['status']) {
+        var myToken = jsonResponse['token'];
+        await prefs.setString('token', myToken);
+        await prefs.setString('designation', jsonResponse['designation']);
+        await prefs.setString('user', jsonResponse['user']);
+
+        if (!mounted) return;
+
+        if (jsonResponse['designation'] == "osm") {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Manager(
+                token: myToken,
+                manager: jsonResponse['user'],
+              ),
+            ),
+            (Route<dynamic> route) => false,
+          );
+        } else if (jsonResponse['designation'] == "vendor") {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Vendor(
+                token: myToken,
+                vendor: jsonResponse['user'],
+              ),
+            ),
+            (Route<dynamic> route) => false,
+          );
+        }
+      } else {
+        await _showDialog(
+          title: 'Login Failed',
+          message: 'Invalid username or password. Please try again.',
+        );
       }
+    } catch (e) {
+      await _showDialog(
+        title: 'Error',
+        message: 'Failed to connect to server. Please check your connection.',
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('Login'),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        primaryColor: AppTheme.mainOrange,
+        scaffoldBackgroundColor: AppTheme.background,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextField(
-              controller: usernameController,
-              decoration: InputDecoration(labelText: 'Username',  errorText: _isNotValidate ? "Enter Valid Info" : null,), 
+      child: Scaffold(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 60),
+                  // Logo or App Name
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppTheme.mainOrange.withOpacity(0.1),
+                    ),
+                    child: const Icon(
+                      Icons.business_center,
+                      size: 64,
+                      color: AppTheme.mainOrange,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Welcome Back',
+                    style: AppTheme.headingStyle,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Sign in to continue',
+                    style: AppTheme.bodyStyle.copyWith(
+                      color: AppTheme.textSecondary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 48),
+                  // Username Field
+                  _buildTextField(
+                    controller: usernameController,
+                    labelText: 'Username',
+                    prefixIcon: Icons.person_outline,
+                    errorText:
+                        _isNotValidate && usernameController.text.isEmpty
+                            ? "Username is required"
+                            : null,
+                  ),
+                  const SizedBox(height: 16),
+                  // Password Field
+                  _buildTextField(
+                    controller: passwordController,
+                    labelText: 'Password',
+                    prefixIcon: Icons.lock_outline,
+                    obscureText: _obscurePassword,
+                    errorText:
+                        _isNotValidate && passwordController.text.isEmpty
+                            ? "Password is required"
+                            : null,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: AppTheme.textSecondary,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Login Button
+                  SizedBox(
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : loginUser,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.mainOrange,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 2,
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Text(
+                              'Login',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            
-            SizedBox(height: 20),
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: 'Password',  errorText: _isNotValidate ? "Enter Valid Info" : null,),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String labelText,
+    required IconData prefixIcon,
+    bool obscureText = false,
+    String? errorText,
+    Widget? suffixIcon,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        style: AppTheme.bodyStyle.copyWith(
+          color: AppTheme.textPrimary,
+        ),
+        decoration: InputDecoration(
+          labelText: labelText,
+          labelStyle: AppTheme.bodyStyle.copyWith(
+            color: AppTheme.textSecondary,
+          ),
+          prefixIcon: Icon(
+            prefixIcon,
+            color: AppTheme.mainOrange,
+          ),
+          suffixIcon: suffixIcon,
+          errorText: errorText,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: AppTheme.cardBorder,
+              width: 1,
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: loginUser,
-              child: Text('Login'),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(
+              color: AppTheme.mainOrange,
+              width: 2,
             ),
-          ],
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: Colors.red.shade300,
+              width: 1,
+            ),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: Colors.red.shade300,
+              width: 2,
+            ),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.all(16),
         ),
       ),
     );
   }
 }
-
-

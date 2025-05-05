@@ -1,11 +1,11 @@
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wmsapp/admin.dart';
 import 'package:wmsapp/appUI.dart';
 import 'package:wmsapp/manager.dart';
-import 'package:wmsapp/vendor.dart';
+import 'package:wmsapp/vendor.dart'; // Import AdminHomePage
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -99,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
       };
 
       var response = await http.post(
-        Uri.parse('http://153.92.5.199:5000/applogin'),
+        Uri.parse('http://153.92.5.199:5000/auth/applogin'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(reqBody),
       );
@@ -110,11 +110,18 @@ class _LoginPageState extends State<LoginPage> {
         var myToken = jsonResponse['token'];
         await prefs.setString('token', myToken);
         await prefs.setString('designation', jsonResponse['designation']);
+        await prefs.setString('admin_status', jsonResponse['admin_status'].toString()); // Store as String
         await prefs.setString('user', jsonResponse['user']);
 
         if (!mounted) return;
 
-        if (jsonResponse['designation'] == "osm") {
+        if (jsonResponse['admin_status'] == "true") {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const AdminHomePage()), // Navigate to AdminHomePage
+            (Route<dynamic> route) => false,
+          );
+        } else if (jsonResponse['designation'] == "osm") {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(

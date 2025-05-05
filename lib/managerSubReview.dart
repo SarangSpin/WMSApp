@@ -54,7 +54,7 @@ class _ManagerSubViewState extends State<ManagerSubView> {
         isLoading = true;
       });
 
-      String url = 'http://153.92.5.199:5000/managersubview?task_id=${widget.task_id}';
+      String url = 'http://153.92.5.199:5000/managers/managersubview?task_id=${widget.task_id}';
       var response = await http.get(
         Uri.parse(url),
         headers: {"Content-Type": "application/json"},
@@ -82,7 +82,7 @@ class _ManagerSubViewState extends State<ManagerSubView> {
 
         // Fetch images for each submission
         String imgUrl =
-            'http://153.92.5.199:5000/imagesubview?task_submission_id=${jsonRes[i]["task_submission_id"]}';
+            'http://153.92.5.199:5000/general/imagesubview?task_submission_id=${jsonRes[i]["task_submission_id"]}';
         var imgResponse = await http.get(
           Uri.parse(imgUrl),
           headers: {"Content-Type": "application/json"},
@@ -97,7 +97,7 @@ class _ManagerSubViewState extends State<ManagerSubView> {
 
       // Update task status if all submissions are completed
       if (widget.finish == 'Completed') {
-        String url2 = 'http://153.92.5.199:5000/taskfinish?task_id=${widget.task_id}';
+        String url2 = 'http://153.92.5.199:5000/managers/taskfinish?task_id=${widget.task_id}';
         await http.get(
           Uri.parse(url2),
           headers: {"Content-Type": "application/json"},

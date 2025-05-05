@@ -43,7 +43,7 @@ class _VendorState extends State<Vendor> {
       });
 
       vendorResponse = jsonDecode(widget.vendor);
-      final url = 'http://153.92.5.199:5000/vendorTask?id=${vendorResponse["vendor_id"]}';
+      final url = 'http://153.92.5.199:5000/vendors/vendorTask?id=${vendorResponse["vendor_id"]}';
 
       final response = await http.get(
         Uri.parse(url),

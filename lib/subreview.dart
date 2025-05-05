@@ -127,7 +127,7 @@ class _SubReviewState extends State<SubReview> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://153.92.5.199:5000/subreview'),
+        Uri.parse('http://153.92.5.199:5000/events/subreview'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "review": reviewController.text,

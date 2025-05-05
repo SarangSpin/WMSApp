@@ -44,7 +44,7 @@ class _ManagerState extends State<Manager> with TickerProviderStateMixin {
   Future<List<dynamic>> managerDash() async {
     try {
       var managerResponse = jsonDecode(widget.manager);
-      String url = 'http://153.92.5.199:5000/managerDash?osm=${managerResponse['employee_id']}';
+      String url = 'http://153.92.5.199:5000/managers/managerDash?osm=${managerResponse['employee_id']}';
       var response = await http.get(
         Uri.parse(url),
         headers: {"Content-Type": "application/json"},

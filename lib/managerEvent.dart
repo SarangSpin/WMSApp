@@ -39,7 +39,7 @@ class _ManagerEventState extends State<ManagerEvent> {
 
    Future<void> checkEventCompletion() async {
     try {
-      final url = 'http://153.92.5.199:5000/checkAllTasksComplete?appl_id=${widget.event['appl_id']}';
+      final url = 'http://153.92.5.199:5000/events/checkAllTasksComplete?appl_id=${widget.event['appl_id']}';
       final response = await http.get(
         Uri.parse(url),
         headers: {"Content-Type": "application/json"},
@@ -126,7 +126,7 @@ class _ManagerEventState extends State<ManagerEvent> {
       );
 
       final response = await http.post(
-        Uri.parse('http://153.92.5.199:5000/completeEvent'),
+        Uri.parse('http://153.92.5.199:5000/events/completeEvent'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"appl_id": widget.event['appl_id']}),
       );
@@ -208,7 +208,7 @@ class _ManagerEventState extends State<ManagerEvent> {
 
   Future<List<dynamic>> venue() async {
     try {
-      final url = 'http://153.92.5.199:5000/venue?id=${widget.event['venue_id']}';
+      final url = 'http://153.92.5.199:5000/general/venue?id=${widget.event['venue_id']}';
       final response = await http.get(
         Uri.parse(url),
         headers: {"Content-Type": "application/json"},
@@ -218,7 +218,7 @@ class _ManagerEventState extends State<ManagerEvent> {
         final data = jsonDecode(response.body);
         jsonRes = data['data'];
 
-        final imgurl = 'http://153.92.5.199:5000/managerView?appl_id=${widget.event['appl_id']}';
+        final imgurl = 'http://153.92.5.199:5000/managers/managerView?appl_id=${widget.event['appl_id']}';
         final imgResponse = await http.get(
           Uri.parse(imgurl),
           headers: {"Content-Type": "application/json"},

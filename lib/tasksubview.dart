@@ -47,7 +47,7 @@ class _TaskSubViewState extends State<TaskSubView> {
         isLoading = true;
       });
 
-      String url = 'http://153.92.5.199:5000/tasksubview?task_id=${widget.task_id}&vendor_id=${widget.vendor_id}';
+      String url = 'http://153.92.5.199:5000/events/tasksubview?task_id=${widget.task_id}&vendor_id=${widget.vendor_id}';
       final response = await http.get(
         Uri.parse(url),
         headers: {"Content-Type": "application/json"},
@@ -66,7 +66,7 @@ class _TaskSubViewState extends State<TaskSubView> {
           jsonRes[i]["status"] == "Incomplete" ? Colors.red : Colors.green,
         );
 
-        String imgUrl = 'http://153.92.5.199:5000/imagesubview?task_submission_id=${jsonRes[i]["task_submission_id"]}';
+        String imgUrl = 'http://153.92.5.199:5000/general/imagesubview?task_submission_id=${jsonRes[i]["task_submission_id"]}';
         final imgResponse = await http.get(
           Uri.parse(imgUrl),
           headers: {"Content-Type": "application/json"},

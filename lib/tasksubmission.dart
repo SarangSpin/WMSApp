@@ -255,13 +255,13 @@ class _TaskSubState extends State<TaskSub> {
       String imagesId = uuid.v4();
       var requestID = await http.MultipartRequest(
         'GET', 
-        Uri.parse('http://153.92.5.199:5000/images_id?id=$imagesId')
+        Uri.parse('http://153.92.5.199:5000/general/images_id?id=$imagesId')
       ).send();
 
       if (requestID.statusCode == 200) {
         var request = http.MultipartRequest(
           'POST',
-          Uri.parse('http://153.92.5.199:5000/tasksubmission'),
+          Uri.parse('http://153.92.5.199:5000/events/tasksubmission'),
         );
 
         for (var image in _image) {

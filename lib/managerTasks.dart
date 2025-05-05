@@ -40,7 +40,7 @@ class _ManagerTasksState extends State<ManagerTasks> {
         isLoading = true;
       });
 
-      final url = 'http://153.92.5.199:5000/tasklist?id=${widget.id}';
+      final url = 'http://153.92.5.199:5000/managers/tasklist?id=${widget.id}';
       final response = await http.get(
         Uri.parse(url),
         headers: {"Content-Type": "application/json"},
@@ -74,7 +74,7 @@ class _ManagerTasksState extends State<ManagerTasks> {
   Future<void> markSubmissionsAsViewed(String taskId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://153.92.5.199:5000/markSubmissionsAsViewed'),
+        Uri.parse('http://153.92.5.199:5000/managers/markSubmissionsAsViewed'),
         body: {'task_id': taskId},
       );
       
